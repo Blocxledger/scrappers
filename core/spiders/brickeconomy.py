@@ -27,12 +27,8 @@ class BrickeconomySpider(scrapy.Spider):
             'core.middlewares.CurlCffiDownloaderMiddleware': 200,
             "scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware": None,
         },
-        'ITEM_PIPELINES': {
-            'core.google_sheets.GoogleSheetsPipeline': 300,
-        },
-        'DOWNLOAD_DELAY':5
+        'DOWNLOAD_DELAY':10
     }  
-    sheet_id = '1uBBJlzUMzNLWH1Vi_dWZhoy7MwGEsQobWLkym7RExDU'
 
 
     def start_requests(self):
