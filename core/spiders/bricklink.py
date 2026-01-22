@@ -176,7 +176,7 @@ class BricklinkSpider(scrapy.Spider):
         else:
             yield item
             yield scrapy.Request(
-                url="https://yourdomain.com/api/ingest-set/",
+                url="https://lego1.up.railway.app/api/ingest-set/",
                 method="POST",
                 body=json.dumps(item),
                 callback=self.check,
