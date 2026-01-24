@@ -121,7 +121,7 @@ class BrickeconomySpider(scrapy.Spider):
     def parse_details(self, response):
         item = {
             'name': response.css('h1.setheader::text').get(),
-            'set_id': response.xpath("//div[contains(text(),'Set number')]/../div[2]/text()").get(),
+            'set_id': response.xpath("//div[contains(text(),'Set number')]/../div[2]/text()").get() or response.url.split('SID')[1].split('/')[0],
             'year': response.xpath("//div[text()='Year']/../div[2]/a/text()").get(),
             'description': ' '.join(response.css('#setdescription_content::text').getall()),
             'sellers': [],
@@ -132,7 +132,7 @@ class BrickeconomySpider(scrapy.Spider):
         item['source'] = 'BrickEconomy'
         for seller in response.css('#sales_region_table tr'):
             item['sellers'] += [{
-                'usd_price':seller.css('.a.bold::text').get(),
+                'usd_price':float(seller.css('.a::text').get('').replace('$','')),
                 'price_change':seller.css('div.text-small::text').get(),
                 'condition':'New/Sealed',
                 'country':seller.css('::attr(data-region)').get(),
@@ -141,7 +141,7 @@ class BrickeconomySpider(scrapy.Spider):
 
         for seller in response.css('#sales_region_used_table tr'):
             item['sellers'] += [{
-                'usd_price':seller.css('.a.bold::text').get(),
+                'usd_price':float(seller.css('.a::text').get('').replace('$','')),
                 'price_change':seller.css('div.text-small::text').get(),
                 'condition':'Used',
                 'country':seller.css('::attr(data-region)').get(),

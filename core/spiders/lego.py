@@ -8,7 +8,7 @@ query = "query ContentPageQuery($slug: String!, $perPage: Int, $page: Int, $sort
 class LegoSpider(scrapy.Spider):
     name = "lego"
     custom_settings = {
-        'DOWNLOAD_DELAY':0
+        'DOWNLOAD_DELAY':10
     }
     headers = {
         "accept": "*/*",
@@ -135,8 +135,13 @@ class LegoSpider(scrapy.Spider):
             method="POST",
             body=json.dumps(item),
             callback=self.check,
+            errback=self.errback,
             headers={"Content-Type": "application/json"},
         )
+
+    def errback(self, failure):
+        breakpoint()
+
 
     def check(self, response):
         pass
