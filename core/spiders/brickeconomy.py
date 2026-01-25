@@ -130,7 +130,7 @@ class BrickeconomySpider(scrapy.Spider):
             'url': response.url,
         }
         item['source'] = 'BrickEconomy'
-        for seller in response.css('#sales_region_table tr'):
+        for seller in response.css('#sales_region_table tr.salemoreitem'):
             item['sellers'] += [{
                 'usd_price':float(seller.css('.a::text').get('').replace('$','')),
                 'price_change':seller.css('div.text-small::text').get(),
@@ -139,7 +139,7 @@ class BrickeconomySpider(scrapy.Spider):
                 'buy_url':base64.b64decode(seller.css('::attr(data-outbound)').get()).decode('utf-8') if seller.css('::attr(data-outbound)').get() else None,
             }]
 
-        for seller in response.css('#sales_region_used_table tr'):
+        for seller in response.css('#sales_region_used_table tr.salemoreitem'):
             item['sellers'] += [{
                 'usd_price':float(seller.css('.a::text').get('').replace('$','')),
                 'price_change':seller.css('div.text-small::text').get(),
