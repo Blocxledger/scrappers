@@ -154,8 +154,8 @@ class BricklinkSpider(scrapy.Spider):
                 'condition': seller['codeNew'].upper(),
                 'country':seller['strSellerCountryName'],
                 'complete': seller['codeComplete'].upper(),
-                'usd_price':float(seller['mDisplaySalePrice'].replace('$','')),
-                'real_price':float(seller['mInvSalePrice'].replace('$','')),
+                'usd_price':float(seller['mDisplaySalePrice'].split(' ')[-1]),
+                'real_price':float(seller['mInvSalePrice'].split(' ')[-1]),
                 'quantity': seller['n4Qty'],
                 'buy_url':f'https://store.bricklink.com/ModernoBricks?itemID={seller["idInv"]}'
             }]
