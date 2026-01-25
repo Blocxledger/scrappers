@@ -155,7 +155,7 @@ class BricklinkSpider(scrapy.Spider):
                 'condition': seller['codeNew'].upper(),
                 'country':seller['strSellerCountryName'],
                 'complete': seller['codeComplete'].upper(),
-                'usd_price':float(price),
+                'usd_price':float(price.replace('$','')),
                 'real_price':seller['mInvSalePrice'],
                 'quantity': seller['n4Qty'],
                 'buy_url':f'https://store.bricklink.com/ModernoBricks?itemID={seller["idInv"]}'
