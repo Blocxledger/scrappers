@@ -59,7 +59,7 @@ class BricksandminifigsanaheimSpider(scrapy.Spider):
 
         item = {
             'name':name,
-            'price':''.join(response.css('sale-price.text-lg::text').getall()).replace('\n', '').strip(),
+            'price':''.join(response.css('sale-price.text-lg::text').getall()).replace('\n', '').strip().replace('$',''),
             'set_id':code,
             'url':response.url,
             'images':[

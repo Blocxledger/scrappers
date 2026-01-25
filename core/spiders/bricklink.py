@@ -148,13 +148,14 @@ class BricklinkSpider(scrapy.Spider):
         data = response.json()
         sellers = data.get('list',[])
         for seller in sellers:
+            price = seller['mDisplaySalePrice'].split(' ')[-1] if len(seller['mDisplaySalePrice'].split(' ')) > 1 else seller['mDisplaySalePrice'].replace('$','')
             item['sellers'] += [{
                 'seller_name': seller['strStorename'],
                 'seller_description': seller['strDesc'],
                 'condition': seller['codeNew'].upper(),
                 'country':seller['strSellerCountryName'],
                 'complete': seller['codeComplete'].upper(),
-                'usd_price':float(seller['mDisplaySalePrice'].split(' ')[-1]),
+                'usd_price':float(price),
                 'real_price':float(seller['mInvSalePrice'].split(' ')[-1]),
                 'quantity': seller['n4Qty'],
                 'buy_url':f'https://store.bricklink.com/ModernoBricks?itemID={seller["idInv"]}'
