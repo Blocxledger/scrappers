@@ -97,7 +97,7 @@ class BricklinkSpider(scrapy.Spider):
     def parse(self, response):
         item = {
                 'name': response.css('#item-name-title::text').get(),
-                'theme_id': response.xpath("//span[contains(.,'Item No:')]/span/text()").get(),
+                'set_id': response.xpath("//span[contains(.,'Item No:')]/span/text()").get(),
                 'year': response.css('td[width="38%"] font[style="font-size:12px; line-height:18px;"] > a::text').get(),
                 'weight': response.css('#item-weight-info::text').get(),
                 'dim': response.css('#dimSec::text').get(),
@@ -154,8 +154,8 @@ class BricklinkSpider(scrapy.Spider):
                 'condition': seller['codeNew'].upper(),
                 'country':seller['strSellerCountryName'],
                 'complete': seller['codeComplete'].upper(),
-                'usd_price':seller['mDisplaySalePrice'],
-                'real_price':seller['mInvSalePrice'],
+                'usd_price':float(seller['mDisplaySalePrice'].replace('$','')),
+                'real_price':float(seller['mInvSalePrice'].replace('$','')),
                 'quantity': seller['n4Qty'],
                 'buy_url':f'https://store.bricklink.com/ModernoBricks?itemID={seller["idInv"]}'
             }]
