@@ -128,7 +128,7 @@ class LegoSpider(scrapy.Spider):
         item['description'] = remove_tags(data['description'])
         item['set_id'] = data['productCode']
         item['source'] = 'LEGO'
-        item['category'] = data['brandCategory']
+        item['category'] = data['brandCategory']['name']
         yield item 
         yield scrapy.Request(
             url="https://lego1.up.railway.app/api/ingest-set/",
