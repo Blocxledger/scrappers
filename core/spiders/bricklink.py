@@ -144,7 +144,7 @@ class BricklinkSpider(scrapy.Spider):
 
     def parse_sellers(self, response):
         item = response.meta['item']
-        item['source'] = 'BrickLink'
+        item['source'] = 'brickLink'
         data = response.json()
         sellers = data.get('list',[])
         for seller in sellers:
