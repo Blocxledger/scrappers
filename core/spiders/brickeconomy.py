@@ -129,7 +129,7 @@ class BrickeconomySpider(scrapy.Spider):
             'images': [f"https://www.brickeconomy.com{img}" for img in response.css('#setmediagallery img::attr(src)').getall()],
             'url': response.url,
         }
-        item['source'] = 'brickEconomy'
+        item['source'] = 'brickeconomy'
         for seller in response.css('#sales_region_table tr.salemoreitem'):
             item['sellers'] += [{
                 'usd_price':float(seller.css('.a::text').get('').replace('$','')),
