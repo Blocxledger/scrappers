@@ -158,7 +158,7 @@ class BricklinkSpider(scrapy.Spider):
                 'usd_price':float(price.replace('$','')),
                 'real_price':seller['mInvSalePrice'],
                 'quantity': seller['n4Qty'],
-                'buy_url':f'https://store.bricklink.com/ModernoBricks?itemID={seller["idInv"]}'
+                'buy_url':f'https://store.bricklink.com/{seller["strSellerUsername"]}?itemID={seller["idInv"]}'
             }]
         if not sellers:
             return
