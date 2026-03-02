@@ -8,7 +8,7 @@ query = "query ContentPageQuery($slug: String!, $perPage: Int, $page: Int, $sort
 class LegoSpider(scrapy.Spider):
     name = "lego"
     custom_settings = {
-        'DOWNLOAD_DELAY':10
+        'DOWNLOAD_DELAY':5
     }
     headers = {
         "accept": "*/*",
@@ -20,7 +20,7 @@ class LegoSpider(scrapy.Spider):
         "pragma": "no-cache",
         "priority": "u=1, i",
         "referer": "https://www.lego.com/en-us/categories/new-sets-and-products?page=2&offset=0",
-        "sec-ch-ua": '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+        "sec-ch-ua": '"Google Chrome";v="141", "Not=A?Brand";v="8", "Chromium";v="141"',
         "sec-ch-ua-mobile": "?0",
         "sec-ch-ua-platform": '"Linux"',
         "sec-fetch-dest": "empty",
@@ -29,11 +29,11 @@ class LegoSpider(scrapy.Spider):
         "user-agent": (
             "Mozilla/5.0 (X11; Linux x86_64) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/129.0.0.0 Safari/537.36"
+            "Chrome/141.0.0.0 Safari/537.36"
         ),
         "x-locale": "en-US",
-        "x-lego-request-id": "8a65b513-0ce6-433d-b0c9-789cb0c9e4c7-app-shop-c-900bfee0",
     }
+    var_hash = "263e9a11c34a0f3331cb4f57d56276a2df04c1c67c6b2b5d18762ed5175cf30e"
 
     def start_requests(self):
         url = "https://www.lego.com/api/graphql/ContentPageQuery"
@@ -73,7 +73,7 @@ class LegoSpider(scrapy.Spider):
                     'price':product['variant']['listPrice']['formattedAmount'],
                     'url':f'https://www.lego.com/en-us/product/{product['slug']}'
                 }
-                url = f"https://www.lego.com/api/graphql/ProductDetails?variables=%7B%22slug%22%3A%22{product['slug']}%22%7D&extensions=%7B%22locale%22%3A%22en-US%22%2C%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22efaecaa2e0d5ff285b224913358a9173de2856c7206af6d99015ae025ed1982c%22%7D%7D"
+                url = f"https://www.lego.com/api/graphql/ProductDetails?variables=%7B%22slug%22%3A%22{product['slug']}%22%7D&extensions=%7B%22locale%22%3A%22en-US%22%2C%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22{self.var_hash}%22%7D%7D"
                 yield scrapy.Request(
                     url=url,
                     headers=self.headers,
@@ -88,7 +88,7 @@ class LegoSpider(scrapy.Spider):
                         'price':variant['listPrice']['formattedAmount'],
                         'url':f'https://www.lego.com/en-us/product/{product['slug']}'
                     }
-                    url = f"https://www.lego.com/api/graphql/ProductDetails?variables=%7B%22slug%22%3A%22{product['slug']}%22%7D&extensions=%7B%22locale%22%3A%22en-US%22%2C%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22efaecaa2e0d5ff285b224913358a9173de2856c7206af6d99015ae025ed1982c%22%7D%7D"
+                    url = f"https://www.lego.com/api/graphql/ProductDetails?variables=%7B%22slug%22%3A%22{product['slug']}%22%7D&extensions=%7B%22locale%22%3A%22en-US%22%2C%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22{self.var_hash}%22%7D%7D"
                     yield scrapy.Request(
                         url=url,
                         headers=self.headers,
