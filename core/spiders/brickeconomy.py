@@ -158,3 +158,5 @@ class BrickeconomySpider(scrapy.Spider):
 
     def check(self, response):
         pass
+
+
