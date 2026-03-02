@@ -8,7 +8,7 @@ query = "query ContentPageQuery($slug: String!, $perPage: Int, $page: Int, $sort
 class LegoSpider(scrapy.Spider):
     name = "lego"
     custom_settings = {
-        #'DOWNLOAD_DELAY': 5,
+        'DOWNLOAD_DELAY': 5,
         'DOWNLOADER_MIDDLEWARES':{
             'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': None,
             'core.mid.curl.CurlCffiDownloaderMiddleware': 590,
