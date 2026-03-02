@@ -8,8 +8,13 @@ query = "query ContentPageQuery($slug: String!, $perPage: Int, $page: Int, $sort
 class LegoSpider(scrapy.Spider):
     name = "lego"
     custom_settings = {
-        'DOWNLOAD_DELAY':5
+        #'DOWNLOAD_DELAY': 5,
+        'DOWNLOADER_MIDDLEWARES':{
+            'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': None,
+            'core.mid.curl.CurlCffiDownloaderMiddleware': 590,
+        }
     }
+
     headers = {
         "accept": "*/*",
         "accept-language": "fr-FR,fr;q=0.9,ar-DZ;q=0.8,ar;q=0.7,en-US;q=0.6,en;q=0.5",
@@ -73,7 +78,7 @@ class LegoSpider(scrapy.Spider):
                     'price':product['variant']['listPrice']['formattedAmount'],
                     'url':f'https://www.lego.com/en-us/product/{product['slug']}'
                 }
-                url = f"https://www.lego.com/api/graphql/ProductDetails?variables=%7B%22slug%22%3A%22{product['slug']}%22%7D&extensions=%7B%22locale%22%3A%22en-US%22%2C%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22{self.var_hash}%22%7D%7D"
+                url = f"https://www.lego.com/api/graphql/ProductDetails?variables=%7B%22slug%22%3A%22{product['slug']}%22%7D&extensions=%7B%22locale%22%3A%22en-US%22%2C%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22263e9a11c34a0f3331cb4f57d56276a2df04c1c67c6b2b5d18762ed5175cf30e%22%7D%7D"
                 yield scrapy.Request(
                     url=url,
                     headers=self.headers,
@@ -82,13 +87,16 @@ class LegoSpider(scrapy.Spider):
                 )
             if product.get('variants'):
                 for variant in product['variants']:
-                    item = {
-                        'name':product['name'],
-                        'images': [image['url'] for image in product['listingImages']],
-                        'price':variant['listPrice']['formattedAmount'],
-                        'url':f'https://www.lego.com/en-us/product/{product['slug']}'
-                    }
-                    url = f"https://www.lego.com/api/graphql/ProductDetails?variables=%7B%22slug%22%3A%22{product['slug']}%22%7D&extensions=%7B%22locale%22%3A%22en-US%22%2C%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22{self.var_hash}%22%7D%7D"
+                    try:
+                        item = {
+                            'name':product['name'],
+                            'images': [image['url'] for image in product['listingImages']],
+                            'price':variant['listPrice']['formattedAmount'],
+                            'url':f'https://www.lego.com/en-us/product/{product['slug']}'
+                        }
+                    except:
+                        breakpoint()
+                    url = f"https://www.lego.com/api/graphql/ProductDetails?variables=%7B%22slug%22%3A%22{product['slug']}%22%7D&extensions=%7B%22locale%22%3A%22en-US%22%2C%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%22263e9a11c34a0f3331cb4f57d56276a2df04c1c67c6b2b5d18762ed5175cf30e%22%7D%7D"
                     yield scrapy.Request(
                         url=url,
                         headers=self.headers,
@@ -99,7 +107,6 @@ class LegoSpider(scrapy.Spider):
 
         if products['offset'] < products['total']:
             url = "https://www.lego.com/api/graphql/ContentPageQuery"
-            print(round((products['offset']/products['perPage']) + 2))
             body = {
                 "operationName": "ContentPageQuery",
                 "variables": {
@@ -125,7 +132,7 @@ class LegoSpider(scrapy.Spider):
     def parse_pdp(self, response):
         item = response.meta['item']
         data = response.json()['data']['product']
-        item['description'] = remove_tags(data['description'])
+        item['description'] = remove_tags(data['featuresText'])
         item['set_id'] = data['productCode']
         item['source'] = 'LEGO'
         item['category'] = data['brandCategory']['name']
