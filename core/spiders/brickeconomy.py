@@ -126,11 +126,11 @@ class BrickeconomySpider(scrapy.Spider):
             'description': ' '.join(response.css('#setdescription_content::text').getall()),
             'sellers': [],
             'category':response.meta['path'],
-            'images': [f"https://www.brickeconomy.com{img}" for img in response.css('#setmediagallery img::attr(src)').getall()],
+            'images': [f"https://www.brickeconomy.com{img}".replace('_thumb.png', '_large.jpg') for img in response.css('#setmediagallery img::attr(src)').getall()],
             'url': response.url,
         }
         item['source'] = 'brickeconomy'
-        for seller in response.css('#sales_region_table tr.salemoreitem'):
+        for seller in response.css('#sales_region_table tr'):
             item['sellers'] += [{
                 'usd_price':float(seller.css('.a::text').get('').replace('$','')),
                 'price_change':seller.css('div.text-small::text').get(),
@@ -139,7 +139,7 @@ class BrickeconomySpider(scrapy.Spider):
                 'buy_url':base64.b64decode(seller.css('::attr(data-outbound)').get()).decode('utf-8') if seller.css('::attr(data-outbound)').get() else None,
             }]
 
-        for seller in response.css('#sales_region_used_table tr.salemoreitem'):
+        for seller in response.css('#sales_region_used_table tr'):
             item['sellers'] += [{
                 'usd_price':float(seller.css('.a::text').get('').replace('$','')),
                 'price_change':seller.css('div.text-small::text').get(),
