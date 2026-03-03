@@ -2,6 +2,8 @@ import json
 import scrapy
 from w3lib.html import remove_tags
 import csv
+import requests
+
 
 def csv_to_dicts(csv_path, encoding="utf-8"):
     """
@@ -104,7 +106,6 @@ class BricklinkSpider(scrapy.Spider):
                 'parts': response.css('td[width="31%"] font[style="font-size:12px; line-height:18px;"] > a::text').get(),
                 'sellers': [],
                 'category':response.meta['path'],
-                'image': f"https:{response.css('.pciMainImageHolder img::attr(src)').get()}",
                 'url': response.url,
             }
         item_id = response.css('#_idAddToWantedLink::attr(data-itemid)').get()
@@ -134,6 +135,9 @@ class BricklinkSpider(scrapy.Spider):
             ),
             "x-requested-with": "XMLHttpRequest",
         }
+        images = requests.get(f'https://www.bricklink.com/ajax/renovate/catalog/getItemImageList.ajax?idItem={item_id}&idColor=-1&bIncludeAssoc=1', headers=headers).json()['item']['imglist']
+        images = [f"https:{img['main_url']}" for img in images]
+        item['images'] = images
         yield scrapy.Request(
             url=url,
             headers=headers,
