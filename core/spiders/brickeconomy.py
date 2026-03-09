@@ -132,9 +132,9 @@ class BrickeconomySpider(scrapy.Spider):
         item['source'] = 'brickeconomy'
         for seller in response.css('#sales_region_table tr'):
             if seller.css('::attr(data-outbound)').get():
-                seller = base64.b64decode(seller.css('::attr(data-outbound)').get())
+                seller_link = base64.b64decode(seller.css('::attr(data-outbound)').get())
                 try:
-                    seller = seller.decode('utf-8')
+                    seller_link = seller_link.decode('utf-8')
                 except:
                     pass
             item['sellers'] += [{
