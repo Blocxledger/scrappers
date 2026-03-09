@@ -27,7 +27,7 @@ class BrickeconomySpider(scrapy.Spider):
             'core.middlewares.CurlCffiDownloaderMiddleware': 200,
             "scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware": None,
         },
-        'DOWNLOAD_DELAY':0.1
+        'DOWNLOAD_DELAY':10
     }  
 
 
