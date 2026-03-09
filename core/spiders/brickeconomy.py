@@ -131,36 +131,40 @@ class BrickeconomySpider(scrapy.Spider):
         }
         item['source'] = 'brickeconomy'
         for seller in response.css('#sales_region_table tr'):
-            seller_link = None
-            if seller.css('::attr(data-outbound)').get():
-                seller_link = base64.b64decode(seller.css('::attr(data-outbound)').get())
-                try:
-                    seller_link = seller_link.decode('utf-8')
-                except:
-                    pass
-            item['sellers'] += [{
-                'usd_price':float(seller.css('.a::text').get('').replace('$','').replace(',','')),
-                'price_change':seller.css('div.text-small::text').get(),
-                'condition':'New/Sealed',
-                'country':seller.css('::attr(data-region)').get(),
-                'buy_url':seller,
-            }]
+            price = seller.css('.a::text').get('').replace('$','').replace(',','')
+            if price and "show" not in price.lower():
+                seller_link = None
+                if seller.css('::attr(data-outbound)').get():
+                    seller_link = base64.b64decode(seller.css('::attr(data-outbound)').get())
+                    try:
+                        seller_link = seller_link.decode('utf-8')
+                    except:
+                        pass
+                item['sellers'] += [{
+                    'usd_price':float(price),
+                    'price_change':seller.css('div.text-small::text').get(),
+                    'condition':'New/Sealed',
+                    'country':seller.css('::attr(data-region)').get(),
+                    'buy_url':seller_link,
+                }]
 
         for seller in response.css('#sales_region_used_table tr'):
-            seller_link = None
-            if seller.css('::attr(data-outbound)').get():
-                seller_link = base64.b64decode(seller.css('::attr(data-outbound)').get())
-                try:
-                    seller_link = seller_link.decode('utf-8')
-                except:
-                    pass
-            item['sellers'] += [{
-                'usd_price':float(seller.css('.a::text').get('').replace('$','').replace(',','')),
-                'price_change':seller.css('div.text-small::text').get(),
-                'condition':'Used',
-                'country':seller.css('::attr(data-region)').get(),
-                'buy_url':seller_link,
-            }]
+            price = seller.css('.a::text').get('').replace('$','').replace(',','')
+            if price and "show" not in price.lower():
+                seller_link = None
+                if seller.css('::attr(data-outbound)').get():
+                    seller_link = base64.b64decode(seller.css('::attr(data-outbound)').get())
+                    try:
+                        seller_link = seller_link.decode('utf-8')
+                    except:
+                        pass
+                item['sellers'] += [{
+                    'usd_price':float(price),
+                    'price_change':seller.css('div.text-small::text').get(),
+                    'condition':'Used',
+                    'country':seller.css('::attr(data-region)').get(),
+                    'buy_url':seller_link,
+                }]
         yield item
         yield scrapy.Request(
             url="https://lego1.up.railway.app/api/ingest-set/",
