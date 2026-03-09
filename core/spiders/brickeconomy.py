@@ -131,21 +131,34 @@ class BrickeconomySpider(scrapy.Spider):
         }
         item['source'] = 'brickeconomy'
         for seller in response.css('#sales_region_table tr'):
+            if seller.css('::attr(data-outbound)').get():
+                seller = base64.b64decode(seller.css('::attr(data-outbound)').get())
+                try:
+                    seller = seller.decode('utf-8')
+                except:
+                    pass
             item['sellers'] += [{
                 'usd_price':float(seller.css('.a::text').get('').replace('$','')),
                 'price_change':seller.css('div.text-small::text').get(),
                 'condition':'New/Sealed',
                 'country':seller.css('::attr(data-region)').get(),
-                'buy_url':base64.b64decode(seller.css('::attr(data-outbound)').get()).decode('utf-8') if seller.css('::attr(data-outbound)').get() else None,
+                'buy_url':seller,
             }]
 
         for seller in response.css('#sales_region_used_table tr'):
+            seller = None
+            if seller.css('::attr(data-outbound)').get():
+                seller = base64.b64decode(seller.css('::attr(data-outbound)').get())
+                try:
+                    seller = seller.decode('utf-8')
+                except:
+                    pass
             item['sellers'] += [{
                 'usd_price':float(seller.css('.a::text').get('').replace('$','')),
                 'price_change':seller.css('div.text-small::text').get(),
                 'condition':'Used',
                 'country':seller.css('::attr(data-region)').get(),
-                'buy_url':base64.b64decode(seller.css('::attr(data-outbound)').get()).decode('utf-8') if seller.css('::attr(data-outbound)').get() else None,
+                'buy_url':seller,
             }]
         yield item
         yield scrapy.Request(
