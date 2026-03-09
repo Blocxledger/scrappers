@@ -16,7 +16,7 @@ def csv_to_dicts(csv_path, encoding="utf-8"):
 class BricklinkSpider(scrapy.Spider):
     name = "bricklink"
     custom_settings = {
-        'DOWNLOAD_DELAY':20
+        'DOWNLOAD_DELAY':8
     }
     headers = {
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -82,7 +82,7 @@ class BricklinkSpider(scrapy.Spider):
         slugs = response.xpath("//table[contains(@class,  'catalog-list__body-main--alternate-row')]//tr//a[contains(@href,'/v2/catalog/catalogitem.page')]/@href").getall()
         for slug in slugs:
             yield scrapy.Request(
-                url=f"https://www.bricklink.com{slug}",
+                url=f"https://www.bricklink.com/v2/catalog/catalogitem.page?S=GearSet-4",
                 headers=self.headers,
                 callback=self.parse,
                 meta=response.meta
@@ -109,6 +109,8 @@ class BricklinkSpider(scrapy.Spider):
                 'url': response.url,
             }
         item_id = response.css('#_idAddToWantedLink::attr(data-itemid)').get()
+        if not item_id:
+            item_id = response.xpath("//script[contains(text(), 'mycollection/getMyItemQty.ajax')]/text()").get().split('tItemQty.ajax?nItemId=')[1].split('&nColorId=0')[0]
         url = (
             "https://www.bricklink.com/ajax/clone/catalogifs.ajax"
             f"?itemid={item_id}&pi=1&iconly=0&rpp=500"
