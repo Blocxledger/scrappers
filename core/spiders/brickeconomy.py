@@ -148,9 +148,9 @@ class BrickeconomySpider(scrapy.Spider):
         for seller in response.css('#sales_region_used_table tr'):
             seller = None
             if seller.css('::attr(data-outbound)').get():
-                seller = base64.b64decode(seller.css('::attr(data-outbound)').get())
+                seller_link = base64.b64decode(seller.css('::attr(data-outbound)').get())
                 try:
-                    seller = seller.decode('utf-8')
+                    seller_link = seller_link.decode('utf-8')
                 except:
                     pass
             item['sellers'] += [{
@@ -158,7 +158,7 @@ class BrickeconomySpider(scrapy.Spider):
                 'price_change':seller.css('div.text-small::text').get(),
                 'condition':'Used',
                 'country':seller.css('::attr(data-region)').get(),
-                'buy_url':seller,
+                'buy_url':seller_link,
             }]
         yield item
         yield scrapy.Request(
