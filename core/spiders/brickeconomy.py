@@ -126,7 +126,7 @@ class BrickeconomySpider(scrapy.Spider):
             'description': ' '.join(response.css('#setdescription_content::text').getall()),
             'sellers': [],
             'category':response.meta['path'],
-            'images': [f"https://www.brickeconomy.com{img}".replace('_thumb.png', '_large.jpg') for img in response.css('#setmediagallery img::attr(src)').getall()],
+            'images': [f"https://www.brickeconomy.com{img}".replace('thumb', 'large').replace('.png', '.jpg') for img in response.css('#setmediagallery img::attr(src)').getall()],
             'url': response.url,
         }
         item['source'] = 'brickeconomy'
