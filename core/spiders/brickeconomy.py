@@ -131,6 +131,7 @@ class BrickeconomySpider(scrapy.Spider):
         }
         item['source'] = 'brickeconomy'
         for seller in response.css('#sales_region_table tr'):
+            seller_link = None
             if seller.css('::attr(data-outbound)').get():
                 seller_link = base64.b64decode(seller.css('::attr(data-outbound)').get())
                 try:
@@ -146,7 +147,7 @@ class BrickeconomySpider(scrapy.Spider):
             }]
 
         for seller in response.css('#sales_region_used_table tr'):
-            seller = None
+            seller_link = None
             if seller.css('::attr(data-outbound)').get():
                 seller_link = base64.b64decode(seller.css('::attr(data-outbound)').get())
                 try:
