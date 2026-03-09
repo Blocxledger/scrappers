@@ -27,7 +27,7 @@ class BrickeconomySpider(scrapy.Spider):
             'core.middlewares.CurlCffiDownloaderMiddleware': 200,
             "scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware": None,
         },
-        'DOWNLOAD_DELAY':10
+        'DOWNLOAD_DELAY':0.1
     }  
 
 
@@ -69,7 +69,8 @@ class BrickeconomySpider(scrapy.Spider):
                 callback=self.parse_details,
                 meta=response.meta
             )
-        if next_page :=  response.xpath("//a[text()='Next']/@href").get() and response.css('input[name="__VIEWSTATE"]::attr(value)').get():
+        if response.xpath("//a[text()='Next']/@href").get() and response.css('input[name="__VIEWSTATE"]::attr(value)').get():
+            next_page = response.xpath("//a[text()='Next']/@href").get()
             next_page = next_page.split("$ctlSets$GridViewSets','")[1].split("')")[0]
             headers = {
                 "accept": "*/*",
@@ -137,7 +138,7 @@ class BrickeconomySpider(scrapy.Spider):
                 if seller.css('::attr(data-outbound)').get():
                     seller_link = base64.b64decode(seller.css('::attr(data-outbound)').get())
                     try:
-                        seller_link = seller_link.decode('utf-8')
+                        seller_link = seller_link.decode("utf-8", errors="ignore")
                     except:
                         pass
                 item['sellers'] += [{
@@ -155,7 +156,7 @@ class BrickeconomySpider(scrapy.Spider):
                 if seller.css('::attr(data-outbound)').get():
                     seller_link = base64.b64decode(seller.css('::attr(data-outbound)').get())
                     try:
-                        seller_link = seller_link.decode('utf-8')
+                        seller_link = seller_link.decode("utf-8", errors="ignore")
                     except:
                         pass
                 item['sellers'] += [{
