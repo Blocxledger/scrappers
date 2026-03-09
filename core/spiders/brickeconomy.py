@@ -139,7 +139,7 @@ class BrickeconomySpider(scrapy.Spider):
                 except:
                     pass
             item['sellers'] += [{
-                'usd_price':float(seller.css('.a::text').get('').replace('$','')),
+                'usd_price':float(seller.css('.a::text').get('').replace('$','').replace(',','')),
                 'price_change':seller.css('div.text-small::text').get(),
                 'condition':'New/Sealed',
                 'country':seller.css('::attr(data-region)').get(),
