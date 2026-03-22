@@ -37,28 +37,19 @@ class BrickeconomySpider(scrapy.Spider):
             headers=self.headers,
             callback=self.parse,
         )
-
+        yield scrapy.Request(
+            url="https://www.brickeconomy.com/minifigs",
+            headers=self.headers,
+            callback=self.parse,
+        )
 
     def parse(self, response):
-        for theme in response.css('.themewrap'):
-            cat = theme.css('.theme a::text').get()
-            sub_themes = theme.css('.subtheme')
-            if not sub_themes:
-                yield scrapy.Request(
-                    url=f"https://www.brickeconomy.com{theme.css('.theme a::attr(href)').get()}",
-                    headers=self.headers,
-                    callback=self.parse_items,
-                    meta={'path':[cat]}
-                )
-            else:
-                for sub_theme in sub_themes.css('a'):
-                    sub_cat = sub_theme.css('::text').get()
-                    yield scrapy.Request(
-                        url=f"https://www.brickeconomy.com{sub_themes.css('::attr(href)').get()}",
-                        headers=self.headers,
-                        callback=self.parse_items,
-                        meta={'path':[cat, sub_cat]}
-                    )
+        for theme in response.css('.themewrap a::attr(href)').getall():
+            yield scrapy.Request(
+                url=f"https://www.brickeconomy.com{theme}",
+                headers=self.headers,
+                callback=self.parse_items,
+            )
 
 
     def parse_items(self, response):
@@ -126,7 +117,7 @@ class BrickeconomySpider(scrapy.Spider):
             'year': response.xpath("//div[text()='Year']/../div[2]/a/text()").get(),
             'description': ' '.join(response.css('#setdescription_content::text').getall()),
             'sellers': [],
-            'category':response.meta['path'],
+            'category':response.css('.breadcrumb a::text').getall()[1:],
             'images': [f"https://www.brickeconomy.com{img}".replace('thumb', 'large').replace('.png', '.jpg') for img in response.css('#setmediagallery img::attr(src)').getall()],
             'url': response.url,
         }
