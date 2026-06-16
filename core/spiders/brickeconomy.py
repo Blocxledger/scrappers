@@ -1,5 +1,6 @@
 import base64
 import json
+import re
 import scrapy
 
 
@@ -110,6 +111,61 @@ class BrickeconomySpider(scrapy.Spider):
             )
 
 
+    def parse_prices(self, response):
+        script_text = response.xpath("//script[contains(text(), 'google.charts.setOnLoadCallback')]/text()").get('')
+
+        if not script_text:
+            return []
+
+        # Extract everything inside addRows([...])
+        matches = re.findall(r"data\.addRows\(\[(.*?)\]\);", script_text, re.DOTALL)
+
+        all_histories = []
+
+        for match in matches:
+            # Match each entry: [new Date(Y, M, D), ...]
+            entries = re.findall(r"\[new Date\(.*?\),.*?\]", match, re.DOTALL)
+
+            history = []
+            for entry in entries:
+                date_match = re.search(r"new Date\((\d+),\s*(\d+),\s*(\d+)\)", entry)
+                if not date_match:
+                    continue
+
+                y, m, d = date_match.groups()
+                date_str = f"{y}-{int(m)+1:02d}-{int(d):02d}"
+
+                # Extract the rest of the fields
+                rest = entry.split(date_match.group(0))[-1].strip()
+                if rest.startswith(','): rest = rest[1:].strip()
+                if rest.endswith(']'): rest = rest[:-1].strip()
+
+                # Parse fields (numbers, quoted strings with escaped chars, or null)
+                # Matches: 0.00 | 'string' | "string" | null
+                fields_pattern = re.compile(r"([\d.]+)|'((?:\\.|[^'])*)'|\"((?:\\.|[^\"])*)\"|(null)")
+                field_matches = fields_pattern.findall(rest)
+
+                parsed_fields = []
+                for num, s1, s2, null in field_matches:
+                    if num:
+                        parsed_fields.append(float(num))
+                    elif s1:
+                        parsed_fields.append(s1.replace("\\'", "'"))
+                    elif s2:
+                        parsed_fields.append(s2.replace('\\"', '"'))
+                    elif null:
+                        parsed_fields.append(None)
+
+                history.append({
+                    "date": date_str,
+                    "price": parsed_fields[0] if parsed_fields else None
+                })
+
+            if history:
+                all_histories.append(history)
+        return all_histories
+
+
     def parse_details(self, response):
         item = {
             'name': response.css('h1.setheader::text').get(),
@@ -120,6 +176,7 @@ class BrickeconomySpider(scrapy.Spider):
             'category':response.css('.breadcrumb a::text').getall()[1:],
             'images': [f"https://www.brickeconomy.com{img}".replace('thumb', 'large').replace('.png', '.jpg') for img in response.css('#setmediagallery img::attr(src)').getall()],
             'url': response.url,
+            'price_history': self.parse_prices(response)
         }
         item['source'] = 'brickeconomy'
         for seller in response.css('#sales_region_table tr'):
